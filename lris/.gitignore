@@ -1,0 +1,44 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Data (versioned datasets are large and reproducible from scrapers) ---
+data/raw/*
+data/clean/*
+data/processed/*
+data/training/*
+data/validation/*
+!data/raw/.gitkeep
+!data/clean/.gitkeep
+!data/processed/.gitkeep
+!data/training/.gitkeep
+!data/validation/.gitkeep
+data/dev.db
+
+# --- ML model artifacts ---
+backend/ml/models_registry/*
+!backend/ml/models_registry/.gitkeep
+
+# --- Frontend ---
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env.local
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
