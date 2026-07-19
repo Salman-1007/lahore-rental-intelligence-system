@@ -1,0 +1,29 @@
+{
+  "model_version": "20260719T153157Z",
+  "dataset_version": "20260719T152722Z",
+  "trained_at": "2026-07-19T15:31:57.980065+00:00",
+  "params": {
+    "depth": 4,
+    "learning_rate": 0.1,
+    "l2_leaf_reg": 5
+  },
+  "feature_columns": [
+    "size_marla",
+    "property_type",
+    "portion_type",
+    "location_price_encoding",
+    "bedrooms",
+    "bathrooms",
+    "parking_spaces",
+    "is_furnished",
+    "is_corner",
+    "is_park_facing",
+    "has_servant_quarter",
+    "has_independent_entrance",
+    "is_newly_built"
+  ],
+  "categorical_features": [
+    "property_type",
+    "portion_type"
+  ]
+}
