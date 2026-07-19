@@ -27,7 +27,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,6 +39,18 @@ app.include_router(autocomplete.router, prefix=settings.api_v1_prefix)
 app.include_router(listings.router, prefix=settings.api_v1_prefix)
 app.include_router(stats.router, prefix=settings.api_v1_prefix)
 app.include_router(trends.router, prefix=settings.api_v1_prefix)
+
+
+@app.get("/", tags=["system"])
+def root() -> dict[str, str]:
+    """Root endpoint - not used by the frontend, just avoids a bare 404
+    for platform health-check pings and anyone opening the API URL
+    directly in a browser.
+
+    Returns:
+        A pointer to the interactive API docs.
+    """
+    return {"service": "Lahore Rental Intelligence System API", "docs": "/docs"}
 
 
 @app.get("/health", tags=["system"])

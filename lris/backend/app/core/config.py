@@ -27,11 +27,15 @@ class Settings(BaseSettings):
         log_level: Root logging level.
         data_dir: Root directory for versioned pipeline datasets.
         api_v1_prefix: URL prefix for versioned API routes.
-        cors_origins: Allowed origins for the frontend dev server.
+        cors_origins: Comma-separated allowed frontend origins.
     """
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        # Absolute path to the repo-root .env file, so this resolves
+        # correctly no matter which directory a script/command is
+        # invoked from (a relative ".env" only works if you happen to be
+        # running from backend/, which caused real confusion earlier).
+        env_file=str(BASE_DIR / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -49,7 +53,29 @@ class Settings(BaseSettings):
 
     api_v1_prefix: str = "/api/v1"
 
-    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+    cors_origins: str = Field(
+        default="http://localhost:3000,http://localhost:5173",
+        description=(
+            "Comma-separated list of allowed frontend origins, e.g. "
+            "'https://your-app.vercel.app,http://localhost:5173'. "
+            "Deliberately a plain string (not a JSON list) because "
+            "dashboard-based hosts (Render, Railway, etc.) frequently "
+            "mangle quoting/brackets when setting env vars through a web "
+            "UI, which breaks pydantic-settings' strict JSON parsing for "
+            "list-typed fields. A comma-separated string has no such "
+            "failure mode."
+        ),
+    )
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Parsed, whitespace-trimmed list of allowed origins.
+
+        Returns:
+            Each comma-separated entry in `cors_origins`, stripped of
+            surrounding whitespace, with empty entries dropped.
+        """
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     # Scraper defaults
     scraper_request_timeout_seconds: float = 15.0
