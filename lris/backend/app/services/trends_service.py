@@ -19,11 +19,18 @@ def get_price_trends(session: Session, location_id: int | None = None) -> Trends
         A `TrendsResponse` with one `TrendPoint` per calendar month that
         has at least one price observation.
     """
-    # NOTE: `strftime` is SQLite-specific. When this runs against
-    # PostgreSQL in production, swap this for `func.to_char(observed_at,
-    # 'YYYY-MM')` — tracked as a follow-up once the Postgres deployment
-    # milestone starts, since dev currently only targets SQLite.
-    period_expr = func.strftime("%Y-%m", PriceHistory.observed_at)
+    # Month-truncation is expressed differently per SQL dialect (SQLite's
+    # strftime vs PostgreSQL's to_char), so this branches on the active
+    # session's dialect rather than hardcoding one — this app runs SQLite
+    # in local dev and PostgreSQL (Neon) in production, and previously
+    # this function only worked against SQLite, throwing a real SQL error
+    # once deployed against Postgres.
+    dialect_name = session.bind.dialect.name if session.bind is not None else "sqlite"
+
+    if dialect_name == "postgresql":
+        period_expr = func.to_char(PriceHistory.observed_at, "YYYY-MM")
+    else:
+        period_expr = func.strftime("%Y-%m", PriceHistory.observed_at)
 
     stmt = (
         select(period_expr.label("period"), func.avg(PriceHistory.price), func.count())
